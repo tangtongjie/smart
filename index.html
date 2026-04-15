@@ -15,19 +15,6 @@
     <style>
       @keyframes spin { to { transform: rotate(360deg); } }
     </style>
-    <script>
-      window.onerror = function(msg, url, line, col, error) {
-        var log = document.createElement('div');
-        log.style.color = 'red';
-        log.style.padding = '20px';
-        log.style.fontSize = '12px';
-        log.style.wordBreak = 'break-all';
-        log.innerHTML = '<strong>JS Error:</strong> ' + msg + '<br>Line: ' + line + '<br>URL: ' + url;
-        document.body.appendChild(log);
-        return false;
-      };
-      console.log("App starting...");
-    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
