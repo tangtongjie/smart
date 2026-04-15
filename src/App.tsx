@@ -73,12 +73,6 @@ function AppContent() {
   const [loginError, setLoginError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!auth || !db) {
-      console.error("Firebase not initialized correctly");
-      setLoading(false);
-      return;
-    }
-
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       console.log("Auth state changed:", user?.uid);
       setUser(user);
