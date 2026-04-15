@@ -1,0 +1,6 @@
+{
+  "name": "Smart Ledger",
+  "description": "An AI-powered minimalist mobile ledger app that simplifies bookkeeping with natural language processing and voice input.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": []
+}
