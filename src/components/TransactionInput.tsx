@@ -12,6 +12,7 @@ export default function TransactionInput({ user, categories }: { user: User, cat
   const [input, setInput] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
+  const [parseError, setParseError] = useState<string | null>(null);
   const [preview, setPreview] = useState<ParsedTransaction | null>(null);
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -50,12 +51,21 @@ export default function TransactionInput({ user, categories }: { user: User, cat
   const handleParse = async (text: string) => {
     if (!text.trim()) return;
     setIsParsing(true);
-    const result = await parseTransaction(text);
-    if (result) {
-      setPreview(result);
+    setParseError(null);
+    try {
+      const result = await parseTransaction(text);
+      if (result && typeof result.amount === 'number' && !isNaN(result.amount)) {
+        setPreview(result);
+        setInput('');
+      } else {
+        setParseError("未能识别金额，请尝试更清晰的描述（如：午饭20元）");
+      }
+    } catch (error) {
+      console.error("Parse error:", error);
+      setParseError("AI 解析失败，请检查网络或 API 配置");
+    } finally {
+      setIsParsing(false);
     }
-    setIsParsing(false);
-    setInput('');
   };
 
   const handleConfirm = async () => {
@@ -125,6 +135,10 @@ export default function TransactionInput({ user, categories }: { user: User, cat
                 {isParsing ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
               </button>
             </div>
+            
+            {parseError && (
+              <p className="mt-2 text-center text-xs font-medium text-red-500">{parseError}</p>
+            )}
             
             <button
               onClick={toggleListening}
