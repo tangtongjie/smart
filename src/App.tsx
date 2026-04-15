@@ -13,6 +13,40 @@ import { cn } from './lib/utils';
 import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 import { db } from './lib/firebase';
 
+// Error Boundary Component
+class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: any}> {
+  state = { hasError: false, error: null as any };
+  
+  constructor(props: {children: React.ReactNode}) {
+    super(props);
+  }
+  
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true, error };
+  }
+  
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex h-screen flex-col items-center justify-center bg-bg p-6 text-center">
+          <h1 className="mb-4 text-2xl font-bold text-red-600">应用运行出错</h1>
+          <p className="mb-6 text-muted">请检查控制台日志或环境变量配置</p>
+          <pre className="max-w-full overflow-auto rounded-lg bg-gray-100 p-4 text-left text-xs text-red-500">
+            {this.state.error?.toString()}
+          </pre>
+          <button 
+            onClick={() => window.location.reload()}
+            className="mt-6 rounded-xl bg-primary px-6 py-2 text-white"
+          >
+            刷新页面
+          </button>
+        </div>
+      );
+    }
+    return (this as any).props.children;
+  }
+}
+
 const DEFAULT_CATEGORIES = [
   { name: '餐饮', type: 'expense' },
   { name: '交通', type: 'expense' },
@@ -23,6 +57,14 @@ const DEFAULT_CATEGORIES = [
 ];
 
 export default function App() {
+  return (
+    <ErrorBoundary>
+      <AppContent />
+    </ErrorBoundary>
+  );
+}
+
+function AppContent() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'home' | 'stats'>('home');
@@ -31,6 +73,12 @@ export default function App() {
   const [loginError, setLoginError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!auth || !db) {
+      console.error("Firebase not initialized correctly");
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       console.log("Auth state changed:", user?.uid);
       setUser(user);

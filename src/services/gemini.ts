@@ -1,9 +1,15 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ParsedTransaction } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = process.env.GEMINI_API_KEY 
+  ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
+  : null;
 
 export async function parseTransaction(text: string): Promise<ParsedTransaction | null> {
+  if (!ai) {
+    console.error("Gemini API Key is missing. Please set GEMINI_API_KEY in environment variables.");
+    return null;
+  }
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
